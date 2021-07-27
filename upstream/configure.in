@@ -1,0 +1,53 @@
+dnl Process this file with autoconf to produce a configure script.
+dnl
+AC_REVISION($Revision: 1.12 $)
+AC_PREREQ(2.52.20200111)
+
+AC_INIT(initscan.c)
+AC_CONFIG_HEADER(config.h:conf.in)
+
+# This can be overridden, but makes --program-prefix default to "re", so
+# it will install as "reflex".
+program_prefix=re
+AC_ARG_PROGRAM
+CF_PROG_EXT
+
+AC_LN_S
+AC_PROG_YACC
+CF_PROG_CC
+AC_PROG_INSTALL
+
+dnl These are standard among *NIX systems, but not when cross-compiling
+AC_CHECK_TOOL(RANLIB, ranlib, ':')
+AC_CHECK_TOOL(LD, ld, ld)
+AC_CHECK_TOOL(AR, ar, ar)
+CF_AR_FLAGS
+
+CF_MAKE_TAGS
+CF_PROG_LINT
+
+CF_DISABLE_ECHO
+AC_PROG_MAKE_SET
+
+AC_CONST
+AC_TYPE_SIZE_T
+
+CF_XOPEN_SOURCE
+CF_WITHOUT_X
+CF_LOCALE
+CF_WITH_WARNINGS
+
+AC_HEADER_STDC
+AC_HAVE_HEADERS(string.h malloc.h sys/types.h)
+
+case "$YACC" in
+*bison*)
+  AC_ALLOCA
+  ;;
+esac
+
+CF_WITH_MAN2HTML     
+
+AC_OUTPUT(Makefile,
+[test -z "$CONFIG_HEADERS" || echo timestamp > stamp-h])
+CF_MAKE_DOCS(flex,1)

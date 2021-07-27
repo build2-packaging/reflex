@@ -1,0 +1,53 @@
+reflex (20210510) unstable; urgency=low
+
+  * maintenance updates
+
+ -- Thomas E. Dickey <dickey@invisible-island.net>  Mon, 10 May 2021 03:57:39 -0400
+
+reflex (20200715) unstable; urgency=low
+
+  * maintenance updates
+
+ -- Thomas E. Dickey <dickey@invisible-island.net>  Wed, 15 Jul 2020 19:01:02 -0400
+
+reflex (20191123) unstable; urgency=low
+
+  * maintenance updates
+
+ -- Thomas E. Dickey <dickey@invisible-island.net>  Sat, 23 Nov 2019 09:25:31 -0500
+
+reflex (20171231) unstable; urgency=low
+
+  * maintenance updates
+
+ -- Thomas E. Dickey <dickey@invisible-island.net>  Sun, 31 Dec 2017 09:58:19 -0500
+
+reflex (20171111) unstable; urgency=low
+
+  * maintenance updates
+
+ -- Thomas E. Dickey <dickey@invisible-island.net>  Sat, 11 Nov 2017 17:55:38 -0500
+
+reflex (20170521) unstable; urgency=low
+
+  * maintenance updates
+
+ -- Thomas E. Dickey <dickey@invisible-island.net>  Sun, 21 May 2017 10:50:55 -0400
+
+reflex (20131209) unstable; urgency=low
+
+  * update configure script
+
+ -- Thomas E. Dickey <dickey@invisible-island.net>  Mon, 09 Dec 2013 18:47:14 -0500
+
+reflex (20100906) unstable; urgency=high
+
+  * Strict compiler warning fixes for size_t.
+
+ -- Thomas E. Dickey <dickey@invisible-island.net>  Mon, 06 Sep 2010 10:06:21 -0400
+
+reflex (20100627) unstable; urgency=high
+
+  * Initial package release
+
+ -- Thomas E. Dickey <dickey@invisible-island.net>  Sun, 27 Jun 2010 11:05:46 -0400

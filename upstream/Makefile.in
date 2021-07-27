@@ -1,0 +1,305 @@
+# $Id: Makefile.in,v 1.26 2021/05/10 08:25:20 tom Exp $
+# @(#) @Header: /home/daffy/u0/vern/flex/RCS/Makefile.in,v 1.45 96/09/10 16:59:04 vern Exp @ (LBL)
+
+@SET_MAKE@
+
+# Possible values for DEFS:
+#
+# By default, flex generates 8-bit scanners when using table compression,
+# and 7-bit scanners when using uncompressed tables (-f or -F options).
+# For flex to always generate 8-bit scanners, add "-DDEFAULT_CSIZE=256"
+# to DEFS.
+#
+# For Vax/VMS, add "-DVMS" to DEFS.
+#
+# For MS-DOS, add "-DMS_DOS" to DEFS.  See the directory MISC/MSDOS for
+# additional info.
+
+CFLAGS          = @CFLAGS@
+DEFS            = @DEFS@
+LDFLAGS         = @LDFLAGS@
+LIBS            = @LIBS@
+
+o		= .@OBJEXT@
+x		= @EXEEXT@
+
+# Installation targeting.  Files will be installed under the tree
+# rooted at prefix.  flex will be installed in bindir, libfl.a in
+# libdir, FlexLexer.h will be installed in includedir, and the manual
+# pages will be installed in mandir with extension manext.
+#
+# Raw, unformatted troff source will be installed if INSTALLMAN=man,
+# nroff preformatted versions will be installed if INSTALLMAN=cat.
+
+prefix          = @prefix@
+exec_prefix     = @exec_prefix@
+bindir          = @bindir@
+libdir          = @libdir@
+includedir      = @includedir@
+datarootdir     = @datarootdir@
+mandir          = @mandir@
+
+BINDIR		= $(DESTDIR)$(bindir)
+LIBDIR		= $(DESTDIR)$(libdir)
+INCLUDEDIR	= $(DESTDIR)$(includedir)
+MANDIR		= $(DESTDIR)$(mandir)
+
+manext          = 1
+mansubdir       = $(MANDIR)/man$(manext)
+
+transform       = @program_transform_name@
+
+# You can define these to be "lex" and "l" if you want to replace
+# lex at your site.
+PROGRAM_ROOT	= flex
+LIBRARY_ROOT	= fl
+
+FLEX            = $(PROGRAM_ROOT)$x
+FLEXLIB         = lib$(LIBRARY_ROOT).a
+
+actual_PROGRAM  = `echo $(PROGRAM_ROOT)| sed '$(transform)'`
+actual_LIBROOT  = `echo $(LIBRARY_ROOT)| sed '$(transform)'`
+actual_HEADER	= `echo FlexLexer|sed '$(transform)'`.h
+
+actual_LIBNAME  = lib$(actual_LIBROOT).a
+
+INSTALLMAN      = man
+
+SHELL           = /bin/sh
+srcdir          = @srcdir@
+VPATH           = @srcdir@
+
+LN_S            = @LN_S@
+YACC            = @YACC@
+CC              = @CC@
+AR              = @AR@
+ARFLAGS         = @ARFLAGS@
+RANLIB          = @RANLIB@
+INSTALL         = @INSTALL@
+INSTALL_DATA    = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+
+CTAGS		= @CTAGS@
+ETAGS		= @ETAGS@
+LINT		= @LINT@
+LINT_OPTS	= @LINT_OPTS@
+
+EXTRA_CFLAGS	= @EXTRA_CFLAGS@
+
+# You normally do not need to modify anything below this point.
+# ------------------------------------------------------------
+
+CPPFLAGS        = -I. -I$(srcdir) \
+		$(DEFS) @CPPFLAGS@ \
+		-DFLEXLEXER_HDR=\"$(actual_HEADER)\"
+
+.c$o:
+	@RULE_CC@
+	@ECHO_CC@$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
+HEADERS = flexdef.h version.h
+
+SOURCES = ccl.c dfa.c ecs.c gen.c main.c misc.c nfa.c parse.y \
+	scan.l skel.c sym.c tblcmp.c yylex.c
+OBJECTS = ccl$o dfa$o ecs$o gen$o main$o misc$o nfa$o parse$o \
+	scan$o skel$o sym$o tblcmp$o yylex$o @ALLOCA@
+
+LIBSRCS = libmain.c libyywrap.c
+LIBOBJS = libmain$o libyywrap$o
+
+LINTSRCS = ccl.c dfa.c ecs.c gen.c main.c misc.c nfa.c parse.c \
+	scan.c skel.c sym.c tblcmp.c yylex.c
+
+DISTFILES = README NEWS COPYING INSTALL FlexLexer.h \
+	configure.in conf.in Makefile.in mkskel.sh flex.skl \
+	$(HEADERS) $(SOURCES) $(LIBSRCS) MISC \
+	flex.1 scan.c install-sh configure
+
+DIST_NAME       = flex
+
+# which "flex" to use to generate scan.c from scan.l
+FLEX_EXEC       = ./$(FLEX)
+FLEX_FLAGS      = -t $(PERF_REPORT)
+COMPRESSION     =
+PERF_REPORT     = -p
+
+
+all: $(FLEX)
+
+$(FLEX): .bootstrap $(OBJECTS) $(FLEXLIB)
+	@ECHO_LD@$(CC) $(CFLAGS) -o $(FLEX) $(LDFLAGS) $(OBJECTS) $(FLEXLIB) $(LIBS)
+
+.bootstrap: initscan.c
+	@rm -f scan.c
+	cp $(srcdir)/initscan.c scan.c
+	touch .bootstrap
+
+parse.c: parse.y
+	$(YACC) -d $(srcdir)/parse.y
+	@sed '/extern char.*malloc/d' <y.tab.c >parse.tmp
+	@mv parse.tmp parse.c
+	@mv y.tab.h parse.h
+	@rm -f y.tab.c
+
+parse.h: parse.c
+
+scan.c: scan.l
+	$(SHELL) $(srcdir)/mkscan.sh $(FLEX_EXEC) $(FLEX_FLAGS) $(COMPRESSION) $(srcdir)/scan.l >scan.c
+
+scan$o: scan.c parse.h flexdef.h config.h
+yylex$o: yylex.c parse.h flexdef.h config.h
+
+skel.c: flex.skl mkskel.sh
+	$(SHELL) $(srcdir)/mkskel.sh $(srcdir)/flex.skl >skel.c
+
+main$o: main.c flexdef.h config.h version.h
+ccl$o: ccl.c flexdef.h config.h
+dfa$o: dfa.c flexdef.h config.h
+ecs$o: ecs.c flexdef.h config.h
+gen$o: gen.c flexdef.h config.h
+misc$o: misc.c flexdef.h config.h
+nfa$o: nfa.c flexdef.h config.h
+parse$o: parse.c flexdef.h config.h
+skel$o: skel.c flexdef.h config.h
+sym$o: sym.c flexdef.h config.h
+tblcmp$o: tblcmp.c flexdef.h config.h
+
+alloca$o: alloca.c
+	@SHOW_CC@$(CC) $(CPPFLAGS) $(CFLAGS) -c -Dxmalloc=yy_flex_xmalloc alloca.c
+
+alloca.c: $(srcdir)/MISC/alloca.c
+	@rm -f alloca.c
+	cp $(srcdir)/MISC/alloca.c .
+
+test: check
+check: $(FLEX)
+	$(SHELL) $(srcdir)/mkscan.sh $(FLEX_EXEC) $(FLEX_FLAGS) $(COMPRESSION) $(srcdir)/scan.l \
+	| diff scan.c -
+	@echo "Check successful, using COMPRESSION=\"$(COMPRESSION)\""
+
+bigcheck:
+	rm -f scan.c ; $(MAKE) COMPRESSION="-C" check
+	rm -f scan.c ; $(MAKE) COMPRESSION="-Ce" check
+	rm -f scan.c ; $(MAKE) COMPRESSION="-Cm" check
+	rm -f scan.c ; $(MAKE) COMPRESSION="-f" check
+	rm -f scan.c ; $(MAKE) COMPRESSION="-Cfea" check
+	rm -f scan.c ; $(MAKE) COMPRESSION="-CFer" check
+	rm -f scan.c ; $(MAKE) COMPRESSION="-l" PERF_REPORT="" check
+	rm -f scan.c ; $(MAKE)
+	@echo "All checks successful"
+
+$(FLEXLIB): $(LIBOBJS)
+	$(AR) $(ARFLAGS) $(FLEXLIB) $(LIBOBJS)
+	-$(RANLIB) $(FLEXLIB)
+
+$(FLEX).man: flex.1
+	cd $(srcdir) && nroff -man flex.1 >$(FLEX).man
+
+install: $(FLEX) $(FLEXLIB) installdirs install.$(INSTALLMAN)
+	$(INSTALL_PROGRAM) $(FLEX) $(BINDIR)/$(actual_PROGRAM)
+	@rm -f $(BINDIR)/$(actual_PROGRAM)++
+	cd $(BINDIR) && $(LN_S) $(actual_PROGRAM) $(actual_PROGRAM)++
+	$(INSTALL_DATA) $(FLEXLIB) $(LIBDIR)/$(actual_LIBNAME)
+	-cd $(LIBDIR) && $(RANLIB) $(actual_LIBNAME)
+	$(SHELL) $(srcdir)/rename.sh \
+		$(srcdir)/FlexLexer.h \
+		$(INCLUDEDIR)/$(actual_HEADER) \
+		$(actual_PROGRAM) \
+		$(actual_HEADER) \
+		$(actual_LIBROOT) \
+		$(INSTALL_DATA)
+
+install.man: flex.1
+	$(SHELL) $(srcdir)/rename.sh \
+		$(srcdir)/flex.1 \
+		$(mansubdir)/$(actual_PROGRAM).$(manext) \
+		$(actual_PROGRAM) \
+		$(actual_HEADER) \
+		$(actual_LIBROOT) \
+		$(INSTALL_DATA)
+
+install.cat: $(FLEX).man
+	$(SHELL) $(srcdir)/rename.sh \
+		$(srcdir)/flex.man \
+		$(mansubdir)/$(actual_PROGRAM).$(manext) \
+		$(actual_PROGRAM) \
+		$(actual_HEADER) \
+		$(actual_LIBROOT) \
+		$(INSTALL_DATA)
+
+$(BINDIR) :	; mkdir -p $@
+$(LIBDIR) :	; mkdir -p $@
+$(INCLUDEDIR) :	; mkdir -p $@
+$(mansubdir) :	; mkdir -p $@
+
+installdirs: $(BINDIR) $(LIBDIR) $(INCLUDEDIR) $(mansubdir)
+
+uninstall:
+	rm -f $(BINDIR)/$(actual_PROGRAM)
+	rm -f $(BINDIR)/$(actual_PROGRAM)++
+	rm -f $(LIBDIR)/$(actual_LIBNAME)
+	rm -f $(INCLUDEDIR)/$(actual_HEADER)
+	rm -f $(mansubdir)/$(actual_PROGRAM).$(manext)
+
+tags: $(SOURCES)
+	$(CTAGS) $(SOURCES)
+
+@MAKE_UPPER_TAGS@TAGS: $(SOURCES)
+@MAKE_UPPER_TAGS@	$(ETAGS) $(SOURCES)
+
+lint: $(LINTSRCS)
+	$(LINT) $(LINT_OPTS) $(CPPFLAGS) $(LINTSRCS)
+
+mostlyclean ::
+	rm -f a.out *.bak core errs scan.tmp
+
+clean :: mostlyclean
+	rm -f flex parse.c parse.h *$o alloca.c lex.yy.c lex.yy.cc \
+		$(FLEXLIB) config.log config.cache
+
+distclean :: clean
+	rm -f .bootstrap $(FLEX) scan.c tags TAGS Makefile man2html.tmp \
+		config.status config.h stamp-h config.log config.cache
+
+maintainer-clean: distclean
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+	rm -f $(FLEX).man skel.c flex*.tar.gz flex*.tar.Z
+
+dist: $(FLEX) $(DISTFILES) parse.c parse.h $(srcdir)/$(FLEX).man
+	$(MAKE) DIST_NAME=flex-`sed <version.h 's/[^"]*"//' | sed 's/"//'` dist2
+
+dist2:
+	@rm -rf $(DIST_NAME)
+	@rm -f $(DIST_NAME).tar $(DIST_NAME).tar.Z $(DIST_NAME).tar.gz
+	@mkdir $(DIST_NAME)
+	tar cf - $(DISTFILES) | (cd $(DIST_NAME) && tar xfB -)
+	@mv $(DIST_NAME)/scan.c $(DIST_NAME)/initscan.c
+	@chmod 444 $(DIST_NAME)/initscan.c
+	@chmod +w $(DIST_NAME)/Makefile.in
+	@cp parse.c parse.h $(DIST_NAME)/MISC
+	@col -b <$(srcdir)/$(FLEX).man >$(DIST_NAME)/MISC/flex.man
+	tar chf $(DIST_NAME).tar $(DIST_NAME)
+	compress <$(DIST_NAME).tar >$(DIST_NAME).tar.Z
+	gzip <$(DIST_NAME).tar >$(DIST_NAME).tar.gz
+	@rm $(DIST_NAME).tar
+
+# For an explanation of the following Makefile rules, see node
+# `Automatic Remaking' in GNU Autoconf documentation.
+Makefile: $(srcdir)/Makefile.in config.status
+	CONFIG_FILES=$@ CONFIG_HEADERS= ./config.status
+config.status: configure
+	./config.status --recheck
+config.h: stamp-h
+stamp-h: conf.in config.status
+	CONFIG_FILES= CONFIG_HEADERS=config.h:conf.in ./config.status
+	echo timestamp >stamp-h
+# conf.in: stamp-h.in
+# stamp-h.in: configure.in acconfig.h
+# 	cd $(srcdir) && autoheader
+# 	config.h.in conf.in
+# 	cho timestamp > $(srcdir)/stamp-h.in
+
+# Tell versions [3.59,3.63) of GNU make not to export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:
