@@ -16,16 +16,19 @@ exe{reflex-boot}: $src c{initscan}
   install = false
 }
 
+# Note that we suppress #line directives (-l/-L) since directory separators
+# are not properly escaped on Windows.
+#
 <{h c}{parse}>: y{parse} $yacc
 {{
   diag yacc ($<[0])
-  $yacc -y -d -H $path($>[0]) -o $path($>[1]) $path($<[0])
+  $yacc -l -y -d -H $path($>[0]) -o $path($>[1]) $path($<[0])
 }}
 
 c{scan}: l{scan} exe{reflex-boot} h{parse flexdef config}
 {{
   diag lex ($<[0])
-  ($<[1]) "-o$path($>)" $path($<[0])
+  ($<[1]) -L "-o$path($>)" $path($<[0])
 }}
 
 # Backlink in the source directory for convenience of development.
@@ -33,3 +36,9 @@ c{scan}: l{scan} exe{reflex-boot} h{parse flexdef config}
 {h c}{parse} c{scan}: backlink = true
 
 c.poptions =+ "-I$out_root" "-I$src_root"
+
+# Upstream uses line continuations inside string literals which trip up GCC
+# bug #84583.
+#
+if ($c.target.system == 'mingw32')
+  obj{main}: cc.reprocess = true

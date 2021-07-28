@@ -10,4 +10,5 @@
 #ifndef _WIN32
 #  define HAVE_UNISTD_H 1
 #else
+#  define YY_NO_UNISTD_H
 #endif
