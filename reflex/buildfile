@@ -32,4 +32,4 @@ c{scan}: l{scan} exe{reflex-boot} h{parse flexdef config}
 #
 {h c}{parse} c{scan}: backlink = true
 
-c.poptions =+ "-I$src_root"
+c.poptions =+ "-I$out_root" "-I$src_root"
