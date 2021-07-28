@@ -7,6 +7,8 @@
 
 #undef HAVE_ALLOCA_H
 
+#define YY_NEVER_INTERACTIVE 1
+
 #ifndef _WIN32
 #  define HAVE_UNISTD_H 1
 #else
