@@ -1,0 +1,4 @@
+- See FreeBSD, OpenBSD Makefile, config.h for reference.
+
+- Update config.h based on conf.in from upstream (but check if actually
+  used -- many aren't).

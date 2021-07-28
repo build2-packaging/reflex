@@ -1,0 +1,16 @@
+: 1
+name: reflex
+version: 20210510
+summary: Relocalized fast lexical analyzer generator
+license: other: BSD-AdClause ; Customized version of BSD-4-Clause
+topics: lex, flex, lexer
+description-file: README.md
+changes-file: NEWS
+url: https://invisible-island.net/reflex/reflex.html
+package-url: https://github.com/build2-packaging/reflex
+package-email: boris@codesynthesis.com
+build-error-email: builds@build2.org
+builds: host
+depends: * build2 >= 0.14.0-
+depends: * bpkg >= 0.14.0-
+depends: * byacc >= 20210619

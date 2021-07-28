@@ -1,0 +1,35 @@
+import! yacc = byacc%exe{byacc}
+
+./: exe{reflex} doc{README.md NEWS} man1{reflex} legal{COPYING} manifest
+
+define y: file
+y{*}: extension = y
+
+define l: file
+l{*}: extension = l
+
+src = {h c}{* -parse -scan -initscan} {h c}{parse}
+
+exe{reflex}: $src c{scan}
+exe{reflex-boot}: $src c{initscan}
+{
+  install = false
+}
+
+<{h c}{parse}>: y{parse} $yacc
+{{
+  diag yacc ($<[0])
+  $yacc -y -d -H $path($>[0]) -o $path($>[1]) $path($<[0])
+}}
+
+c{scan}: l{scan} exe{reflex-boot} h{parse flexdef config}
+{{
+  diag lex ($<[0])
+  ($<[1]) "-o$path($>)" $path($<[0])
+}}
+
+# Backlink in the source directory for convenience of development.
+#
+{h c}{parse} c{scan}: backlink = true
+
+c.poptions =+ "-I$src_root"
