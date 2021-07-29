@@ -137,6 +137,16 @@ static const char *skelname = NULL;
 int
 main(int argc, char **argv)
 {
+    /* Handle --build2-metadata (see also buildfile). */
+    if (argc == 2 && strncmp (argv[1], "--build2-metadata=", 18) == 0) {
+        printf ("# build2 buildfile reflex\n");
+        printf ("export.metadata = 1 reflex\n");
+        printf ("reflex.name = [string] lex\n");
+        printf ("reflex.version = [string] '%s'\n", flex_patched);
+        printf ("reflex.checksum = [string] '%s'\n", flex_patched);
+        return 0;
+    }
+
     int i;
 
 #ifdef THINK_C

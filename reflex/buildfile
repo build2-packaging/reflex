@@ -2,6 +2,19 @@ import! yacc = byacc%exe{byacc}
 
 ./: exe{reflex} doc{README.md NEWS} man1{reflex} legal{COPYING} manifest
 
+# Target metadata, see also --build2-metadata in main.c.
+#
+# Note that the generated parse.c queries the YYDEBUG environment variable but
+# only if compiled with the YYDEBUG macro defined to 1.
+#
+exe{reflex}:
+{
+  export.metadata = 1 reflex
+  reflex.name = [string] lex
+  reflex.version  = [string] $version
+  reflex.checksum = [string] $version
+}
+
 define y: file
 y{*}: extension = y
 
@@ -22,7 +35,7 @@ exe{reflex-boot}: $src c{initscan}
 <{h c}{parse}>: y{parse} $yacc
 {{
   diag yacc ($<[0])
-  $yacc -l -y -d -H $path($>[0]) -o $path($>[1]) $path($<[0])
+  $yacc -l -y "--defines=$path($>[0])" -o $path($>[1]) $path($<[0])
 }}
 
 c{scan}: l{scan} exe{reflex-boot} h{parse flexdef config}
