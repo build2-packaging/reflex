@@ -12,3 +12,11 @@ corresponding C code.
 
 `reflex` is based on `flex` 2.5.4a, and unlike so-called "new" `flex`, remains
 compatible with POSIX `lex`.
+
+Note that for better compatibility with "new" `flex`, this package has applied
+a patch to allow specifying `-o`, `-P`, and `-S` option values as separate
+arguments, for example:
+
+```
+reflex -P yyy -o scan.c scan.l
+```

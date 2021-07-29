@@ -28,7 +28,7 @@ exe{reflex-boot}: $src c{initscan}
 c{scan}: l{scan} exe{reflex-boot} h{parse flexdef config}
 {{
   diag lex ($<[0])
-  ($<[1]) -L "-o$path($>)" $path($<[0])
+  ($<[1]) -L -o $path($>) $path($<[0])
 }}
 
 # Backlink in the source directory for convenience of development.
