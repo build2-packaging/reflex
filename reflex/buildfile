@@ -1,4 +1,4 @@
-import! yacc = byacc%exe{byacc}
+import! [metadata] yacc = byacc%exe{byacc}
 
 ./: exe{reflex} doc{README.md NEWS} man1{reflex} legal{COPYING} manifest
 
