@@ -325,6 +325,7 @@ check_options(void)
 	    GEN_PREFIX("in");
 	    GEN_PREFIX("leng");
 	    GEN_PREFIX("lex");
+	    GEN_PREFIX("lex_destroy");
 	    GEN_PREFIX("out");
 	    GEN_PREFIX("restart");
 	    GEN_PREFIX("text");

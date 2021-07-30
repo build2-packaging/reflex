@@ -2,3 +2,7 @@
 
 - Update config.h based on conf.in from upstream (but check if actually
   used -- many aren't).
+
+- skel.c is generated from flex.skel with a script:
+
+  ../upstream/mkskel.sh flex.skl >skel.c
