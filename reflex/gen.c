@@ -936,6 +936,8 @@ gentabs(void)
 
     dataend();
     out_str("/* %s */\n", "*INDENT-ON*");
+
+    flex_free(acc_array);
 }
 
 /* make_tables - generate transition tables and finishes generating output file
