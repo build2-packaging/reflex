@@ -1,4 +1,4 @@
-/* $Id: gen.c,v 1.32 2021/05/10 21:17:23 tom Exp $ */
+/* $Id: gen.c,v 1.34 2021/08/07 00:36:39 Boris.Kolpackov Exp $ */
 /* gen - actual generation (writing) of flex scanners */
 
 /*-
@@ -936,6 +936,8 @@ gentabs(void)
 
     dataend();
     out_str("/* %s */\n", "*INDENT-ON*");
+
+    flex_free(acc_array);
 }
 
 /* make_tables - generate transition tables and finishes generating output file
@@ -1400,9 +1402,11 @@ make_tables(void)
     set_indent(0);
     skelout();
     if (do_yylineno) {		/* update yylineno inside of unput() */
+	indent_up();
 	outn("if (c == '\\n')");
 	indent_up();
 	outn("--yylineno;");
+	indent_down();
 	indent_down();
     }
 
@@ -1426,6 +1430,13 @@ make_tables(void)
     }
 
     set_indent(0);
+    skelout();
+    /* Reset yylineno inside of yylex_destroy(). */
+    if (do_yylineno) {
+	set_indent(1);
+	outn("yylineno = 1;");
+	set_indent(0);
+    }
     skelout();
 
     /* Copy remainder of input to output. */
