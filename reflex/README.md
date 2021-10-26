@@ -12,3 +12,5 @@ corresponding C code.
 
 `reflex` is based on `flex` 2.5.4a, and unlike so-called "new" `flex`, remains
 compatible with POSIX `lex`.
+
+Note that the `reflex` executable provides `build2` metadata.
