@@ -1,6 +1,6 @@
 : 1
 name: reflex
-version: 20210808
+version: 20210808+1
 summary: Relocalized fast lexical analyzer generator
 license: other: BSD-AdClause ; Customized version of BSD-4-Clause
 topics: lex, flex, lexer

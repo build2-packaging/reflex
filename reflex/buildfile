@@ -25,35 +25,31 @@ src = {h c}{* -parse -scan -initscan} {h c}{parse}
 
 exe{reflex}: $src
 
-if $config.reflex.develop
-{
-  # Bootstrap.
-  #
-  exe{reflex}: c{scan}
-  exe{reflex-boot}: $src c{initscan}
-  {
-    install = false
-  }
+# Bootstrap if in development mode.
+#
+exe{reflex}: c{scan}:     include = ( $config.reflex.develop)
+exe{reflex}: c{initscan}: include = (!$config.reflex.develop)
 
-  # Note that we suppress #line directives (-L) since directory separators
-  # are not properly escaped on Windows.
-  #
-  c{scan}: l{scan} exe{reflex-boot} h{parse flexdef config}
-  {
-    # Backlink in the source directory for convenience of development.
-    #
-    backlink = true
-  }
-  {{
-    diag lex ($<[0])
-    ($<[1]) -L -o $path($>) $path($<[0])
-  }}
-}
-else
+exe{reflex-boot}: $src c{initscan}
 {
-  exe{reflex}: c{initscan}
-  ./: l{scan} # Keep in the distribution.
+  install = false
 }
+
+# Note that we suppress #line directives (-L) since directory separators
+# are not properly escaped on Windows.
+#
+c{scan}: l{scan} exe{reflex-boot} h{parse flexdef config}
+{
+  # Backlink in the source directory for convenience of development.
+  #
+  backlink = true
+}
+%
+if $config.reflex.develop
+{{
+  diag lex ($<[0])
+  ($<[1]) -L -o $path($>) $path($<[0])
+}}
 
 # Note that we suppress #line directives (-l) since directory separators
 # are not properly escaped on Windows.
